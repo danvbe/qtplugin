@@ -28,7 +28,7 @@ class QTPlugin_API {
 	public function getRandomQuote()
 	{
 		$data = array();
-		$response = wp_remote_get($this->api_url.'randomquote');
+		$response = wp_remote_get($this->api_url.'randomquote/'.$this->app_id);
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
@@ -46,7 +46,7 @@ class QTPlugin_API {
 	public function getQuotes()
 	{
 		$data = array();
-		$response = wp_remote_get($this->api_url.'quote');
+		$response = wp_remote_get($this->api_url.'quote/'.$this->app_id);
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
@@ -65,7 +65,7 @@ class QTPlugin_API {
 	public function getQuote($id)
 	{
 		$data = array();
-		$response = wp_remote_get($this->api_url.'quote/'.$id);
+		$response = wp_remote_get($this->api_url.'quote/'.$this->app_id.'/'.$id);
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
@@ -75,7 +75,7 @@ class QTPlugin_API {
 	}
 
 	public function addQuote($data){
-		$response = wp_remote_request($this->api_url.'quote',array(
+		$response = wp_remote_request($this->api_url.'quote/'.$this->app_id,array(
 				'method' => 'POST',
 				'body' => $data,
 			)
@@ -85,7 +85,7 @@ class QTPlugin_API {
 	}
 
 	public function deleteQuote($id){
-		$response = wp_remote_request($this->api_url.'quote/'.$id,array(
+		$response = wp_remote_request($this->api_url.'quote/'.$this->app_id.'/'.$id,array(
 				'method' => 'DELETE',
 			)
 		);
@@ -94,7 +94,7 @@ class QTPlugin_API {
 	}
 
 	public function editQuote($data){
-		$response = wp_remote_request($this->api_url.'quote/'.$data['id'],array(
+		$response = wp_remote_request($this->api_url.'quote/'.$this->app_id.'/'.$data['id'],array(
 				'method' => 'PUT',
 				'body' => $data,
 			)
