@@ -32,12 +32,7 @@ require_once( QTPLUGIN_PATH . 'class.qtplugin-forms.php' );
  */
 class QTPlugin
 {
-	/**
-	 * The API Url as gotten from user
-	 *
-	 * @var string $api_url
-	 */
-	private $api_url;
+	private $api_class;
 
 	/**
 	 * The security nonce
@@ -60,8 +55,7 @@ class QTPlugin
 	 */
 	public function __construct()
 	{
-		//to get the options from the db
-		$this->getData();
+		$this->api_class = new QTPlugin_API($this->getData());
 
 		add_action( 'wp_footer', array( $this, 'footerRandomQuote' ) );
 
@@ -78,10 +72,7 @@ class QTPlugin
 	 */
 	private function getData()
 	{
-		$options = get_option($this->option_name, array());
-		$this->api_url = $options['api_url'];
-
-		return $options;
+		return get_option($this->option_name, array());
 	}
 
 	/**
@@ -163,7 +154,7 @@ class QTPlugin
 
 	// This just echoes the text
 	public function footerRandomQuote() {
-		$quote =QTPlugin_API::getRandomQuote($this->api_url);
+		$quote =$this->api_class->getRandomQuote();
 
 		echo '<div style="background: green; color: white; text-align: center;">';
 		echo $quote['text'].' - <b>'.$quote['author'].'</b>';
@@ -185,7 +176,7 @@ class QTPlugin
 			switch ( $page ) {
 				case 'new':
 					if ( isset( $_POST['author'] ) ) {
-						$response = QTPlugin_API::addQuote($this->api_url, $_POST );
+						$response = $this->api_class->addQuote( $_POST );
 						if ( ! is_wp_error( $response ) ) {
 							$response_data = json_decode( $response['body'], true );
 							QTPlugin_Forms::showQuote( $response_data['id'] );
@@ -199,39 +190,39 @@ class QTPlugin
 					break;
 				case 'edit':
 					if ( isset( $_POST['id'] ) ) {
-						$response = QTPlugin_API::editQuote($this->api_url, $_POST );
+						$response = $this->api_class->editQuote( $_POST );
 						if ( ! is_wp_error( $response ) ) {
 							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $_POST['id'] );
 							exit;
 						} else {
-							$quote = QTPlugin_API::getQuote($this->api_url, $_POST['id'] );
+							$quote = $this->api_class->getQuote( $_POST['id'] );
 							QTPlugin_Forms::editQuote( $quote );
 						}
 					} else {
 						$id = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
-						$quote = QTPlugin_API::getQuote($this->api_url, $id);
+						$quote = $this->api_class->getQuote( $id );
 						QTPlugin_Forms::editQuote( $quote );
 					}
 					break;
 					break;
 				case 'show':
 					$id = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
-					$quote = QTPlugin_API::getQuote($this->api_url, $id);
+					$quote = $this->api_class->getQuote( $id );
 					QTPlugin_Forms::showQuote( $quote );
 					break;
 				case 'delete':
 					$id       = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
-					$response = QTPlugin_API::deleteQuote($this->api_url, $id );
+					$response = $this->api_class->deleteQuote( $id );
 					if ( ! is_wp_error( $response ) ) {
 						wp_redirect( QTPlugin::getURL() . '&qtp_page=list' );
 						exit;
 					} else {
-						$quote = QTPlugin_API::getQuote($this->api_url, $id);
+						$quote = $this->api_class->getQuote( $id );
 						QTPlugin_Forms::showQuote( $quote );
 					}
 					break;
 				default:
-					$quotes = QTPlugin_API::getQuotes($this->api_url);
+					$quotes = $this->api_class->getQuotes();
 					QTPlugin_Forms::listQuotes($quotes);
 					break;
 			}
