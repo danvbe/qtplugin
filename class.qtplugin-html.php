@@ -6,9 +6,9 @@
  * Time: 12:37 PM
  */
 
-class QTPlugin_Forms {
+class QTPlugin_HTML {
 
-    public static function getConfigurations($data){
+    public function configurationForm($data){
         ?>
         <div class="wrap">
             <h3><?php _e('Quotes Plugin Settings', 'qtplugin'); ?></h3>
@@ -48,7 +48,7 @@ class QTPlugin_Forms {
 	    <?php
     }
 
-	public static function listQuotes($quotes){
+	public function quotesList($quotes){
 		?>
         <div class="wrap">
             <h3><?php _e('Quotes list', 'qtplugin'); ?></h3>
@@ -100,7 +100,7 @@ class QTPlugin_Forms {
 		<?php
 	}
 
-	public static function newQuote($data = array()){
+	public function newQuoteForm($data = array()){
 		?>
         <div class="wrap">
             <h3><?php _e('Add new quote', 'qtplugin'); ?></h3>
@@ -126,8 +126,7 @@ class QTPlugin_Forms {
                         <td>
 							<textarea name="text"
                                       id="text"
-                                      value="<?php isset($data['text'])?$data['text']:'' ?>">
-							</textarea>
+                                      value="<?php isset($data['text'])?$data['text']:'' ?>"></textarea>
                         </td>
                     </tr>
                     </tbody>
@@ -152,7 +151,7 @@ class QTPlugin_Forms {
 		<?php
 	}
 
-	public static function editQuote($quote){
+	public function editQuoteForm($quote){
 		?>
         <div class="wrap">
             <h3><?php _e('Edit quote', 'qtplugin'); ?></h3>
@@ -174,9 +173,7 @@ class QTPlugin_Forms {
                     <tr>
                         <td scope="row">Quote</td>
                         <td>
-							<textarea name="text" id="text">
-                                <?php echo $quote['text'] ?>
-							</textarea>
+							<textarea name="text" id="text"><?php echo $quote['text'] ?></textarea>
                         </td>
                     </tr>
                     </tbody>
@@ -201,7 +198,7 @@ class QTPlugin_Forms {
 		<?php
 	}
 
-	public static function showQuote($quote){
+	public function showQuote($quote){
 		?>
         <div class="wrap">
             <h3><?php _e('Show quote', 'qtplugin'); ?></h3>
