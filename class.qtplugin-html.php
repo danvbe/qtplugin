@@ -33,8 +33,19 @@ class QTPlugin_HTML {
                                    class="regular-text"
                                     value="<?php echo isset($data['api_url'])?$data['api_url']:'' ?>"/>
                         </td>
+                        <td rowspan="2">
+                            <button class="button button-primary" id="qtplugin-admin-save" type="submit"><?php _e( 'Save plugin settings', 'qtplugin' ); ?></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td scope="row">
+                            <label><?php _e( 'App ID', 'qtplugin' ); ?></label>
+                        </td>
                         <td>
-                            <button class="button button-primary" id="qtplugin-admin-save" type="submit"><?php _e( 'Save', 'qtplugin' ); ?></button>
+                            <input name="qtplugin_app_id"
+                                   id="qtplugin_app_id"
+                                   class="regular-text"
+                                   value="<?php echo isset($data['app_id'])?$data['app_id']:'' ?>"/>
                         </td>
                     </tr>
 

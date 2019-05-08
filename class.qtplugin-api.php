@@ -13,9 +13,11 @@
 class QTPlugin_API {
 
 	private $api_url;
+	private $app_id;
 
 	public function __construct($data) {
 		$this->api_url = $data['api_url'];
+		$this->app_id = $data['app_id'];
 	}
 
 	/**
@@ -56,7 +58,7 @@ class QTPlugin_API {
 	}
 
 	/**
-	 * Get list of quotes
+	 * Gets a specific Quote
 	 *
 	 * @return array
 	 */
@@ -69,20 +71,13 @@ class QTPlugin_API {
 			$data = json_decode($response['body'], true);
 		}
 
-
 		return $data;
 	}
 
 	public function addQuote($data){
-		$response = wp_remote_post($this->api_url.'quote/new',array(
+		$response = wp_remote_request($this->api_url.'quote',array(
 				'method' => 'POST',
-				'timeout' => 45,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => array(),
 				'body' => $data,
-				'cookies' => array()
 			)
 		);
 
@@ -90,15 +85,8 @@ class QTPlugin_API {
 	}
 
 	public function deleteQuote($id){
-		$response = wp_remote_post($this->api_url.'quote/delete',array(
-				'method' => 'POST',
-				'timeout' => 45,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => array(),
-				'body' => array('id'=>$id),
-				'cookies' => array()
+		$response = wp_remote_request($this->api_url.'quote/'.$id,array(
+				'method' => 'DELETE',
 			)
 		);
 
@@ -106,15 +94,9 @@ class QTPlugin_API {
 	}
 
 	public function editQuote($data){
-		$response = wp_remote_post($this->api_url.'quote/'.$data['id'],array(
-				'method' => 'POST',
-				'timeout' => 45,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => array(),
+		$response = wp_remote_request($this->api_url.'quote/'.$data['id'],array(
+				'method' => 'PUT',
 				'body' => $data,
-				'cookies' => array()
 			)
 		);
 
