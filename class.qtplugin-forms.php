@@ -8,8 +8,47 @@
 
 class QTPlugin_Forms {
 
-	public static function listQuotes(){
-		$quotes =QTPlugin_API::getQuotes();
+    public static function getConfigurations($data){
+        ?>
+        <div class="wrap">
+            <h3><?php _e('Quotes Plugin Settings', 'qtplugin'); ?></h3>
+
+            <p>
+			    <?php _e('You need to provide the URL where the <b>Quotest API</b> is avaliable from.', 'qtplugin'); ?>
+            </p>
+
+            <hr>
+
+            <form id="qtplugin-admin-form">
+
+                <table class="form-table">
+                    <tbody>
+                    <tr>
+                        <td scope="row">
+                            <label><?php _e( 'API Url', 'qtplugin' ); ?></label>
+                        </td>
+                        <td>
+                            <input name="qtplugin_api_url"
+                                   id="qtplugin_api_url"
+                                   class="regular-text"
+                                    value="<?php echo isset($data['api_url'])?$data['api_url']:'' ?>"/>
+                        </td>
+                        <td>
+                            <button class="button button-primary" id="qtplugin-admin-save" type="submit"><?php _e( 'Save', 'qtplugin' ); ?></button>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </form>
+
+        </div>
+
+	    <?php
+    }
+
+	public static function listQuotes($quotes){
 		?>
         <div class="wrap">
             <h3><?php _e('Quotes list', 'qtplugin'); ?></h3>
@@ -113,8 +152,7 @@ class QTPlugin_Forms {
 		<?php
 	}
 
-	public static function editQuote($id){
-		$quote =QTPlugin_API::getQuote($id);
+	public static function editQuote($quote){
 		?>
         <div class="wrap">
             <h3><?php _e('Edit quote', 'qtplugin'); ?></h3>
@@ -163,8 +201,7 @@ class QTPlugin_Forms {
 		<?php
 	}
 
-	public static function showQuote($id){
-		$quote =QTPlugin_API::getQuote($id);
+	public static function showQuote($quote){
 		?>
         <div class="wrap">
             <h3><?php _e('Show quote', 'qtplugin'); ?></h3>

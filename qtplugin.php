@@ -19,9 +19,6 @@ if(!defined('QTPLUGIN_URL'))
 if(!defined('QTPLUGIN_PATH'))
 	define('QTPLUGIN_PATH', plugin_dir_path( __FILE__ ));
 
-if(!defined('QTPLUGIN_API_URL'))
-	define('QTPLUGIN_API_URL', 'http://127.0.0.1:8000/api/');
-
 require_once( QTPLUGIN_PATH . 'class.qtplugin-api.php' );
 require_once( QTPLUGIN_PATH . 'class.qtplugin-forms.php' );
 
@@ -36,9 +33,25 @@ require_once( QTPLUGIN_PATH . 'class.qtplugin-forms.php' );
 class QTPlugin
 {
 	/**
-	 * @var QTPlugin_API
+	 * The API Url as gotten from user
+	 *
+	 * @var string $api_url
 	 */
-	private $qtplugin_api;
+	private $api_url;
+
+	/**
+	 * The security nonce
+	 *
+	 * @var string
+	 */
+	private $_nonce = 'qtplugin_admin';
+	/**
+	 * The option name
+	 *
+	 * @var string
+	 */
+	private $option_name = 'qtplugin_data';
+
 
 	/**
 	 * QTPlugin constructor.
@@ -47,15 +60,32 @@ class QTPlugin
 	 */
 	public function __construct()
 	{
+		//to get the options from the db
+		$this->getData();
+
 		add_action( 'wp_footer', array( $this, 'footerRandomQuote' ) );
 
 		// Admin page calls:
 		add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
-		//add_action( 'wp_ajax_store_admin_data', array( $this, 'storeAdminData' ) );
-		//add_action( 'admin_enqueue_scripts', array( $this, 'addAdminScripts' ) );
+		add_action( 'wp_ajax_store_admin_data', array( $this, 'storeAdminData' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'addAdminScripts' ) );
 	}
 
 	/**
+	 * Returns the saved options data as an array
+	 *
+	 * @return array
+	 */
+	private function getData()
+	{
+		$options = get_option($this->option_name, array());
+		$this->api_url = $options['api_url'];
+
+		return $options;
+	}
+
+	/**
+	 * Helper function to construct the proper URL and to avoid adding the qt_page param several times
 	 * @return string
 	 */
 	public static function getURL(){
@@ -66,6 +96,53 @@ class QTPlugin
 		$array_url['query'] = $queries;
 		$ret_query = http_build_query($queries);
 		return $array_url['scheme'].'://'.$array_url['host'].$array_url['path'].'?'.$ret_query;
+	}
+
+	/**
+	 * Adds Admin Scripts for the Ajax call
+	 */
+	public function addAdminScripts()
+	{
+		wp_enqueue_script('qtplugin-admin', QTPLUGIN_URL. '/assets/js/admin.js', array(), 1.0);
+		$admin_options = array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'_nonce'   => wp_create_nonce( $this->_nonce ),
+		);
+		wp_localize_script('qtplugin-admin', 'qtplugin_exchanger', $admin_options);
+	}
+
+	/**
+	 * Callback for the Ajax request
+	 *
+	 * Updates the options data
+	 *
+	 * @return void
+	 */
+	public function storeAdminData()
+	{
+
+		if (wp_verify_nonce($_POST['security'], $this->_nonce ) === false)
+			die('Invalid Request!');
+
+		$data = $this->getData();
+
+		foreach ($_POST as $field=>$value) {
+
+			if (substr($field, 0, 9) !== "qtplugin_" || empty($value))
+				continue;
+
+			// We remove the qtplugin_ prefix to clean things up
+			$field = substr($field, 9);
+
+			$data[$field] = $value;
+
+		}
+
+		update_option($this->option_name, $data);
+
+		echo __('Saved!', 'qtplugin');
+		die();
+
 	}
 
 	/**
@@ -86,7 +163,7 @@ class QTPlugin
 
 	// This just echoes the text
 	public function footerRandomQuote() {
-		$quote =QTPlugin_API::getRandomQuote();
+		$quote =QTPlugin_API::getRandomQuote($this->api_url);
 
 		echo '<div style="background: green; color: white; text-align: center;">';
 		echo $quote['text'].' - <b>'.$quote['author'].'</b>';
@@ -100,57 +177,64 @@ class QTPlugin
 	 */
 	public function adminLayout()
 	{
-		$page = isset($_GET['qtp_page'])?$_GET['qtp_page']:'index';
-		switch ($page) {
-			case 'new':
-				if(isset($_POST['author'])){
-					$response = QTPlugin_API::addQuote($_POST);
-					if(!is_wp_error($response)){
-						$response_data = json_decode($response['body'], true);
-						QTPlugin_Forms::showQuote($response_data['id']);
-						unset($_POST);
+		$data = $this->getData();
+		QTPlugin_Forms::getConfigurations($data);
+
+		if (!empty($data['api_url'])) {
+			$page = isset( $_GET['qtp_page'] ) ? $_GET['qtp_page'] : 'index';
+			switch ( $page ) {
+				case 'new':
+					if ( isset( $_POST['author'] ) ) {
+						$response = QTPlugin_API::addQuote($this->api_url, $_POST );
+						if ( ! is_wp_error( $response ) ) {
+							$response_data = json_decode( $response['body'], true );
+							QTPlugin_Forms::showQuote( $response_data['id'] );
+							unset( $_POST );
+						} else {
+							QTPlugin_Forms::newQuote( $_POST );
+						}
+					} else {
+						QTPlugin_Forms::newQuote();
 					}
-					else {
-						QTPlugin_Forms::newQuote( $_POST );
+					break;
+				case 'edit':
+					if ( isset( $_POST['id'] ) ) {
+						$response = QTPlugin_API::editQuote($this->api_url, $_POST );
+						if ( ! is_wp_error( $response ) ) {
+							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $_POST['id'] );
+							exit;
+						} else {
+							$quote = QTPlugin_API::getQuote($this->api_url, $_POST['id'] );
+							QTPlugin_Forms::editQuote( $quote );
+						}
+					} else {
+						$id = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
+						$quote = QTPlugin_API::getQuote($this->api_url, $id);
+						QTPlugin_Forms::editQuote( $quote );
 					}
-				} else {
-					QTPlugin_Forms::newQuote();
-				}
-				break;
-			case 'edit':
-				if(isset($_POST['id'])){
-					$response = QTPlugin_API::editQuote($_POST);
-					if(!is_wp_error($response)){
-						wp_redirect(QTPlugin::getURL().'&qtp_page=show&id='.$_POST['id']);
+					break;
+					break;
+				case 'show':
+					$id = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
+					$quote = QTPlugin_API::getQuote($this->api_url, $id);
+					QTPlugin_Forms::showQuote( $quote );
+					break;
+				case 'delete':
+					$id       = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
+					$response = QTPlugin_API::deleteQuote($this->api_url, $id );
+					if ( ! is_wp_error( $response ) ) {
+						wp_redirect( QTPlugin::getURL() . '&qtp_page=list' );
 						exit;
+					} else {
+						$quote = QTPlugin_API::getQuote($this->api_url, $id);
+						QTPlugin_Forms::showQuote( $quote );
 					}
-					else {
-						QTPlugin_Forms::editQuote( $_POST['id'] );
-					}
-				} else {
-					$id = isset($_GET['qtp_id'])?$_GET['qtp_id']:null;
-					QTPlugin_Forms::editQuote($id);
-				}
-				break;
-				break;
-			case 'show':
-				$id = isset($_GET['qtp_id'])?$_GET['qtp_id']:null;
-				QTPlugin_Forms::showQuote($id);
-				break;
-			case 'delete':
-				$id = isset($_GET['qtp_id'])?$_GET['qtp_id']:null;
-				$response = QTPlugin_API::deleteQuote($id);
-				if(!is_wp_error($response)){
-					wp_redirect(QTPlugin::getURL().'&qtp_page=list');
-					exit;
-				}
-				else {
-					QTPlugin_Forms::showQuote($id);
-				}
-				break;
-			default:
-				QTPlugin_Forms::listQuotes();
-				break;
+					break;
+				default:
+					$quotes = QTPlugin_API::getQuotes($this->api_url);
+					QTPlugin_Forms::listQuotes($quotes);
+					break;
+			}
 		}
 	}
 

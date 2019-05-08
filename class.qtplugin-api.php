@@ -17,10 +17,10 @@ class QTPlugin_API {
 	 *
 	 * @return array
 	 */
-	public static function getRandomQuote()
+	public static function getRandomQuote($api_url)
 	{
 		$data = array();
-		$response = wp_remote_get(QTPLUGIN_API_URL.'randomquote');
+		$response = wp_remote_get($api_url.'randomquote');
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
@@ -35,10 +35,10 @@ class QTPlugin_API {
 	 *
 	 * @return array
 	 */
-	public static function getQuotes()
+	public static function getQuotes($api_url)
 	{
 		$data = array();
-		$response = wp_remote_get(QTPLUGIN_API_URL.'quote');
+		$response = wp_remote_get($api_url.'quote');
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
@@ -54,10 +54,10 @@ class QTPlugin_API {
 	 *
 	 * @return array
 	 */
-	public static function getQuote($id)
+	public static function getQuote($api_url, $id)
 	{
 		$data = array();
-		$response = wp_remote_get(QTPLUGIN_API_URL.'quote/'.$id);
+		$response = wp_remote_get($api_url.'quote/'.$id);
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
@@ -67,8 +67,8 @@ class QTPlugin_API {
 		return $data;
 	}
 
-	public static function addQuote($data){
-		$response = wp_remote_post(QTPLUGIN_API_URL.'quote/new',array(
+	public static function addQuote($api_url, $data){
+		$response = wp_remote_post($api_url.'quote/new',array(
 				'method' => 'POST',
 				'timeout' => 45,
 				'redirection' => 5,
@@ -83,8 +83,8 @@ class QTPlugin_API {
 		return $response;
 	}
 
-	public static function deleteQuote($id){
-		$response = wp_remote_post(QTPLUGIN_API_URL.'quote/delete',array(
+	public static function deleteQuote($api_url, $id){
+		$response = wp_remote_post($api_url.'quote/delete',array(
 				'method' => 'POST',
 				'timeout' => 45,
 				'redirection' => 5,
@@ -99,8 +99,8 @@ class QTPlugin_API {
 		return $response;
 	}
 
-	public static function editQuote($data){
-		$response = wp_remote_post(QTPLUGIN_API_URL.'quote/'.$data['id'],array(
+	public static function editQuote($api_url, $data){
+		$response = wp_remote_post($api_url.'quote/'.$data['id'],array(
 				'method' => 'POST',
 				'timeout' => 45,
 				'redirection' => 5,
