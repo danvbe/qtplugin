@@ -232,10 +232,12 @@ class QTPlugin_HTML {
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td>
+                    <td colspan="2">
                         <a class="button button-primary" href="<?php echo QTPlugin::getURL().'&qtp_page=edit&qtp_id='.$quote['id']?>">Edit</a>
                     </td>
-                    <td>
+                </tr>
+                <tr>
+                    <td colspan="2">
                         <a class="button button-secondary" href="<?php echo QTPlugin::getURL().'&qtp_page=list'?>"><?php _e( 'Back to List', 'qtplugin' ); ?></a>
                     </td>
                 </tr>
