@@ -181,9 +181,8 @@ class QTPlugin
 					if ( isset( $_POST['author'] ) ) {
 						$response = $this->api_class->addQuote( $_POST );
 						if ( ! is_wp_error( $response ) ) {
-							$response_data = json_decode( $response['body'], true );
-							$this->html_class->showQuote( $response_data['id'] );
-							unset( $_POST );
+							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $_POST['id'] );
+							exit;
 						} else {
 							$this->html_class->newQuoteForm( $_POST );
 						}
