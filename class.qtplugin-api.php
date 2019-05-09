@@ -64,7 +64,7 @@ class QTPlugin_API {
 	public function getRandomQuote()
 	{
 		$data = array();
-		$response = wp_remote_get($this->api_url.'randomquote/'.$this->app_id);
+		$response = wp_remote_get($this->api_url.'quote/random/'.$this->app_id);
 
 		if (!is_wp_error($response)) {
 			$data = json_decode($response['body'], true);
