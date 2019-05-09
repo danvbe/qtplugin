@@ -128,7 +128,7 @@ class QTPlugin_HTML {
                         <td>
                             <input name="author"
                                    id="author"
-                                   class="regular-text"
+                                   class="qtp_author"
                                    value="<?php isset($data['author'])?$data['author']:'' ?>"/>
                         </td>
                     </tr>
@@ -177,7 +177,7 @@ class QTPlugin_HTML {
                         <td>
                             <input name="author"
                                    id="author"
-                                   class="regular-text"
+                                   class="regular-text qtp_author"
                                    value="<?php echo $quote['author'] ?>"/>
                         </td>
                     </tr>

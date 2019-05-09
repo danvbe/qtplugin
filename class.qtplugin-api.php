@@ -21,7 +21,25 @@ class QTPlugin_API {
 	}
 
 	/**
-	 * Get random quote
+	 * Get all the authors
+	 *
+	 * @return array
+	 */
+	public function getAuthors()
+	{
+		$data = array();
+		$response = wp_remote_get($this->api_url.'quote/'.$this->app_id.'/authors');
+
+		if (!is_wp_error($response)) {
+			$data = json_decode($response['body'], true);
+		}
+
+		return $data;
+
+	}
+
+	/**
+	 * Get quotes of a given author
 	 *
 	 * @return array
 	 */

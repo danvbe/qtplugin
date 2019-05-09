@@ -97,12 +97,32 @@ class QTPlugin
 	 */
 	public function addAdminScripts()
 	{
-		wp_enqueue_script('qtplugin-admin', QTPLUGIN_URL. '/assets/js/admin.js', array(), 1.0);
+		//we enque jQueryUI for Autocomplete availability
+		$wp_scripts = wp_scripts();
+		wp_enqueue_style( 'jquery-ui-styles',
+			sprintf('https://code.jquery.com/ui/%s/themes/black-tie/jquery-ui.css',
+				$wp_scripts->registered['jquery-ui-core']->ver)
+		);
+		wp_enqueue_style( 'demo-styles','https://jqueryui.com/resources/demos/style.css');
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'jquery-ui-autocomplete' );
+
+		//enque our custom code
+		wp_enqueue_script('qtplugin-admin', QTPLUGIN_URL. '/assets/js/admin.js');
+
+		//construct the variables to be passed
+		$authors = $this->api_class->getAuthors();
+		$arr_authors = [];
+		foreach ($authors as $author){
+			$arr_authors[] = $author['author'];
+		}
+
 		$admin_options = array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'_nonce'   => wp_create_nonce( $this->_nonce ),
+			'authors'  => $arr_authors,
 		);
-		wp_localize_script('qtplugin-admin', 'qtplugin_exchanger', $admin_options);
+		wp_localize_script('qtplugin-admin', 'qtplugin_php_vars', $admin_options);
 	}
 
 	/**
