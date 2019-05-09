@@ -60,7 +60,7 @@ class QTPlugin
 		$this->api_class = new QTPlugin_API($this->getData());
 		$this->html_class = new QTPlugin_HTML();
 
-		add_action( 'wp_footer', array( $this, 'footerRandomQuote' ) );
+		add_action( 'wp_footer', array( $this, 'footerDisplay' ) );
 
 		// Admin page calls:
 		add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
@@ -154,6 +154,28 @@ class QTPlugin
 		);
 	}
 
+	public function footerDisplay(){
+		echo '<div style="background: lightgray; color: #010101; text-align: center;">';
+		global $wp;
+		$query = $_GET;
+		if(array_key_exists('qt_author',$query)){
+			$author = urldecode($query['qt_author']);
+			$quotes =$this->api_class->getAuthorQuotes($author);
+			echo '<u>Quotes by <em>"'.$author.'"</em></u>:<br>';
+			foreach ($quotes as $quote){
+				echo $quote['text'].'<br>';
+			}
+			unset($query['qt_author']);
+			$href = home_url(add_query_arg(array($query), $wp->request));
+			echo '<b><a href="'.$href.'">Back to random quotes</a></b>';
+		} else {
+			$quote =$this->api_class->getRandomQuote();
+			$query['qt_author'] = urlencode($quote['author']);
+			$href = home_url(add_query_arg(array($query), $wp->request));
+			echo $quote['text'].' - <b><a href="'.$href.'">'.$quote['author'].'</a></b>';
+		}
+		echo '</div>';
+	}
 
 	// This just echoes the text
 	public function footerRandomQuote() {
