@@ -229,7 +229,7 @@ class QTPlugin
 						$response = $this->api_class->addQuote( $_POST );
 						$data = json_decode($response['body'], true);
 						if ( ! is_wp_error( $response ) && !array_key_exists('errors',$data)) {
-							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $_POST['id'] );
+							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $data['id'] );
 							exit;
 						} else {
 							$this->html_class->newQuoteForm( $_POST, $data['errors'] );

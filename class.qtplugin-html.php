@@ -96,7 +96,7 @@ class QTPlugin_HTML {
                         <td>
                             <a class="button button-primary" href="<?php echo QTPlugin::getURL().'&qtp_page=show&qtp_id='.$quote['id']?>">Show</a>
                             <a class="button button-primary" href="<?php echo QTPlugin::getURL().'&qtp_page=edit&qtp_id='.$quote['id']?>">Edit</a>
-                            <a class="button button-secondary" href="<?php echo QTPlugin::getURL().'&qtp_page=delete&qtp_id='.$quote['id']?>">Delete</a>
+                            <a onclick="alert('Are you sure? Deletion is permanent!')" class="button button-secondary" href="<?php echo QTPlugin::getURL().'&qtp_page=delete&qtp_id='.$quote['id']?>">Delete</a>
                         </td>
                     </tr>
 				<?php endforeach;?>
