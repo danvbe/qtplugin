@@ -11,10 +11,10 @@ class QTPlugin_HTML {
     public function configurationForm($data){
         ?>
         <div class="wrap">
-            <h3><?php _e('Quotes Plugin Settings', 'qtplugin'); ?></h3>
+            <h3><?php _e('QuoTest Plugin Settings', 'qtplugin'); ?></h3>
 
             <p>
-			    <?php _e('You need to provide the URL where the <b>Quotest API</b> is avaliable from.', 'qtplugin'); ?>
+			    <?php _e('You need to provide the URL where the <b>QuoTest API</b> is avaliable from.', 'qtplugin'); ?>
             </p>
 
             <hr>
