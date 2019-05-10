@@ -31,7 +31,8 @@ class QTPlugin_HTML {
                             <input name="qtplugin_api_url"
                                    id="qtplugin_api_url"
                                    class="regular-text"
-                                    value="<?php echo isset($data['api_url'])?$data['api_url']:'' ?>"/>
+                                   required
+                                   value="<?php echo isset($data['api_url'])?$data['api_url']:'' ?>"/>
                         </td>
                         <td rowspan="2">
                             <button class="button button-primary" id="qtplugin-admin-save" type="submit"><?php _e( 'Save plugin settings', 'qtplugin' ); ?></button>
@@ -45,6 +46,9 @@ class QTPlugin_HTML {
                             <input name="qtplugin_app_id"
                                    id="qtplugin_app_id"
                                    class="regular-text"
+                                   required
+                                   pattern=".{1,10}"
+                                   title="Not Blank, at amost 10 characters"
                                    value="<?php echo isset($data['app_id'])?$data['app_id']:'' ?>"/>
                         </td>
                     </tr>
@@ -129,6 +133,7 @@ class QTPlugin_HTML {
                             <input name="author"
                                    id="author"
                                    class="qtp_author"
+                                   required
                                    value="<?php isset($data['author'])?$data['author']:'' ?>"/>
                         </td>
                     </tr>
@@ -137,6 +142,8 @@ class QTPlugin_HTML {
                         <td>
 							<textarea name="text"
                                       id="text"
+                                      minlength="10"
+                                      required
                                       value="<?php isset($data['text'])?$data['text']:'' ?>"></textarea>
                         </td>
                     </tr>
@@ -177,6 +184,7 @@ class QTPlugin_HTML {
                         <td>
                             <input name="author"
                                    id="author"
+                                   required
                                    class="regular-text qtp_author"
                                    value="<?php echo $quote['author'] ?>"/>
                         </td>
@@ -184,7 +192,7 @@ class QTPlugin_HTML {
                     <tr>
                         <td scope="row">Quote</td>
                         <td>
-							<textarea name="text" id="text"><?php echo $quote['text'] ?></textarea>
+							<textarea name="text" id="text" required minlength="10"><?php echo $quote['text'] ?></textarea>
                         </td>
                     </tr>
                     </tbody>

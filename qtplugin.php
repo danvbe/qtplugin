@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Quote Test Plugin
+ * Plugin Name: QuoTest Plugin
  * Plugin URI:
  * Description: This is the very first plugin I ever created :)
  * Version: 1.0
@@ -32,8 +32,18 @@ require_once( QTPLUGIN_PATH . 'class.qtplugin-html.php' );
  */
 class QTPlugin
 {
+	/**
+	 * This is the class responsible for communicating with the API client
+	 *
+	 * @var QTPlugin_API
+	 */
 	private $api_class;
 
+	/**
+	 * This is the class responsible for rendering html content
+	 *
+	 * @var QTPlugin_HTML
+	 */
 	private $html_class;
 
 	/**
@@ -57,6 +67,7 @@ class QTPlugin
 	 */
 	public function __construct()
 	{
+		//the API class needs the configuration data to run
 		$this->api_class = new QTPlugin_API($this->getData());
 		$this->html_class = new QTPlugin_HTML();
 
@@ -174,6 +185,9 @@ class QTPlugin
 		);
 	}
 
+	/**
+	 * This displays the footer page in the frontend part
+	 */
 	public function footerDisplay(){
 		echo '<div style="background: lightgray; color: #010101; text-align: center;">';
 		global $wp;
@@ -197,17 +211,8 @@ class QTPlugin
 		echo '</div>';
 	}
 
-	// This just echoes the text
-	public function footerRandomQuote() {
-		$quote =$this->api_class->getRandomQuote();
-
-		echo '<div style="background: green; color: white; text-align: center;">';
-		echo $quote['text'].' - <b>'.$quote['author'].'</b>';
-		echo '</div>';
-	}
-
 	/**
-	 * Outputs the Admin Dashboard layout containing the form with all its options
+	 * Outputs the Admin Dashboard layout
 	 *
 	 * @return void
 	 */
@@ -222,11 +227,12 @@ class QTPlugin
 				case 'new':
 					if ( isset( $_POST['author'] ) ) {
 						$response = $this->api_class->addQuote( $_POST );
-						if ( ! is_wp_error( $response ) ) {
+						$data = json_decode($response['body'], true);
+						if ( ! is_wp_error( $response ) && !array_key_exists('errors',$data)) {
 							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $_POST['id'] );
 							exit;
 						} else {
-							$this->html_class->newQuoteForm( $_POST );
+							$this->html_class->newQuoteForm( $_POST, $data['errors'] );
 						}
 					} else {
 						$this->html_class->newQuoteForm();
@@ -235,12 +241,13 @@ class QTPlugin
 				case 'edit':
 					if ( isset( $_POST['id'] ) ) {
 						$response = $this->api_class->editQuote( $_POST );
-						if ( ! is_wp_error( $response ) ) {
+						$data = json_decode($response['body'], true);
+						if ( ! is_wp_error( $response && !array_key_exists('errors',$data) ) ) {
 							wp_redirect( QTPlugin::getURL() . '&qtp_page=show&id=' . $_POST['id'] );
 							exit;
 						} else {
 							$quote = $this->api_class->getQuote( $_POST['id'] );
-							$this->html_class->editQuoteForm( $quote );
+							$this->html_class->editQuoteForm( $quote, $data['errors'] );
 						}
 					} else {
 						$id = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
@@ -257,7 +264,8 @@ class QTPlugin
 				case 'delete':
 					$id       = isset( $_GET['qtp_id'] ) ? $_GET['qtp_id'] : null;
 					$response = $this->api_class->deleteQuote( $id );
-					if ( ! is_wp_error( $response ) ) {
+					$data = json_decode($response['body'], true);
+					if ( ! is_wp_error( $response && !array_key_exists('errors',$data)) ) {
 						wp_redirect( QTPlugin::getURL() . '&qtp_page=list' );
 						exit;
 					} else {
@@ -276,6 +284,6 @@ class QTPlugin
 }
 
 /*
- * Starts our plugin class, easy!
+ * Start our plugin class!
  */
 new QTPlugin();
